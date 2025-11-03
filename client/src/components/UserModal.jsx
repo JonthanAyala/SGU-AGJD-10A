@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import usuarioService from "../services/usuarioService";
 
 const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
   const [formData, setFormData] = useState({
@@ -9,7 +8,6 @@ const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [emailExists, setEmailExists] = useState(false);
 
   useEffect(() => {
     if (show) {
@@ -27,7 +25,6 @@ const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
         });
       }
       setErrors({});
-      setEmailExists(false);
     }
   }, [show, isEditing, user]);
 
@@ -49,13 +46,8 @@ const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
 
     if (!formData.numeroTelefono.trim()) {
       newErrors.numeroTelefono = "El número de teléfono es requerido";
-    } else if (!/^\d{3}-\d{3}-\d{4}$/.test(formData.numeroTelefono)) {
-      newErrors.numeroTelefono = "El formato debe ser XXX-XXX-XXXX";
-    }
-
-    if (emailExists) {
-      newErrors.correoElectronico =
-        "Este correo electrónico ya está registrado";
+    } else if (!/^\d{10}$/.test(formData.numeroTelefono)) {
+      newErrors.numeroTelefono = "El número debe tener 10 dígitos";
     }
 
     setErrors(newErrors);
@@ -64,29 +56,6 @@ const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!isEditing) {
-      // Verificar si el correo ya existe antes de crear
-      try {
-        setLoading(true);
-        const exists = await usuarioService.verificarExisteCorreo(
-          formData.correoElectronico
-        );
-        setEmailExists(exists);
-        setLoading(false);
-
-        if (exists) {
-          setErrors((prev) => ({
-            ...prev,
-            correoElectronico: "Este correo electrónico ya está registrado",
-          }));
-          return;
-        }
-      } catch (error) {
-        setLoading(false);
-        console.warn("No se pudo verificar el correo:", error);
-      }
-    }
 
     if (validateForm()) {
       setLoading(true);
@@ -112,28 +81,19 @@ const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
         [name]: "",
       }));
     }
-
-    // Limpiar el estado de emailExists si se está modificando el correo
-    if (name === "correoElectronico") {
-      setEmailExists(false);
-    }
   };
 
   const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // Solo números
-    if (value.length >= 3) {
-      value = value.slice(0, 3) + "-" + value.slice(3, 7);
-    }
+    // Solo dígitos, máximo 10
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+
     setFormData((prev) => ({
       ...prev,
-      numeroTelefono: value,
+      numeroTelefono: digits,
     }));
 
     if (errors.numeroTelefono) {
-      setErrors((prev) => ({
-        ...prev,
-        numeroTelefono: "",
-      }));
+      setErrors((prev) => ({ ...prev, numeroTelefono: "" }));
     }
   };
 
@@ -226,8 +186,8 @@ const UserModal = ({ show, onHide, user, isEditing, onSave }) => {
                     name="numeroTelefono"
                     value={formData.numeroTelefono}
                     onChange={handlePhoneChange}
-                    placeholder="555-1234"
-                    maxLength="8"
+                    placeholder="1234567890"
+                    maxLength="10"
                     disabled={loading}
                   />
                   {errors.numeroTelefono && (
