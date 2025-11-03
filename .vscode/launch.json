@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ServerApplication<server>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "mx.edu.utez.server.ServerApplication",
+            "projectName": "server",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
