@@ -1,7 +1,7 @@
 const ENV = import.meta.env;
 
 //const API_BASE_URL = "http://localhost:8080/api/usuarios";
-const API_BASE_URL = `http://${ENV.VITE_API_HOST}:${ENV.VITE_API_PORT}${ENV.VITE_API_BASE}`;
+const API_BASE_URL = `${ENV.VITE_API_PROTOCOL}://${ENV.VITE_API_HOST}:${ENV.VITE_API_PORT}${ENV.VITE_API_BASE}`;
 
 class UsuarioService {
   // 1. Crear Usuario
